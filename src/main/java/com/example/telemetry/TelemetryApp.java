@@ -1,4 +1,6 @@
 
+package com.example.telemetry;
+
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
@@ -17,6 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class TelemetryApp {
     private static final Logger logger = LoggerFactory.getLogger(TelemetryApp.class);
@@ -24,7 +29,7 @@ public class TelemetryApp {
     public static void main(String[] args) {
         // Set up OTLP exporters
         OtlpGrpcSpanExporter spanExporter = OtlpGrpcSpanExporter.builder()
-                .setEndpoint("elastic-apm-server.elastic-system.svc:8200") // Elastic APM OTLP endpoint
+                .setEndpoint("elastic-apm-server.elastic-system.svc:8200")
                 .build();
 
         OtlpGrpcMetricExporter metricExporter = OtlpGrpcMetricExporter.builder()
@@ -39,7 +44,7 @@ public class TelemetryApp {
         // Metrics setup
         SdkMeterProvider meterProvider = SdkMeterProvider.builder()
                 .registerMetricReader(PeriodicMetricReader.builder(metricExporter)
-                        .setInterval(Duration.ofSeconds(10))
+                        .setInterval(Duration.ofMinutes(1))
                         .build())
                 .build();
 
@@ -56,16 +61,19 @@ public class TelemetryApp {
                 .setUnit("1")
                 .build();
 
-        // Simulate telemetry
-        Span span = tracer.spanBuilder("example-span").startSpan();
-        span.addEvent("Span started");
-        logger.info("This is a log message sent to Elastic APM via OTLP");
-        requestCounter.add(1);
-        span.end();
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(() -> {
+            Span span = tracer.spanBuilder("example-span").startSpan();
+            span.addEvent("Span started");
+            logger.info("This is a log message sent to Elastic APM via OTLP");
+            requestCounter.add(1);
+            span.end();
+        }, 0, 1, TimeUnit.MINUTES);
 
-        // Shutdown
-        tracerProvider.shutdown();
-        meterProvider.shutdown();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            scheduler.shutdown();
+            tracerProvider.shutdown();
+            meterProvider.shutdown();
+        }));
     }
 }
-
