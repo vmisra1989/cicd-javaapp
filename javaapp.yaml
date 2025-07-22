@@ -26,6 +26,12 @@ spec:
       containers:
       - name: javaapp
         image: vmisra1989/javaapp:1.0
+        env:
+          - name: OTEL_SERVICE_NAME
+            value: javaapp
+          - name: OTEL_RESOURCE_ATTRIBUTES
+            value: service.version=1.0.0,deployment.environment=dev  
+  
         envFrom:
         - configMapRef:
             name: otel-config
@@ -41,11 +47,6 @@ metadata:
 spec:
   selector:
     app: javaapp
-  env:
-    - name: OTEL_SERVICE_NAME
-      value: javaapp
-    - name: OTEL_RESOURCE_ATTRIBUTES
-      value: service.version=1.0.0,deployment.environment=dev  
   ports:
   - protocol: TCP
     port: 8082
