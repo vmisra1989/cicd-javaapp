@@ -30,11 +30,13 @@ public class TelemetryApp {
         // Set up OTLP exporters
         OtlpGrpcSpanExporter spanExporter = OtlpGrpcSpanExporter.builder()
                 .setEndpoint("http://elastic-apm-server.elastic-system.svc.cluster.local:8200")
-                .build();
+                .addHeader("Authorization", "Bearer Wl9sQ0xKZ0JWNlJDY3RrRTlvY0U6cWZ4X0lxX0dwQXE2TGptdkFNWEpnQQ==")
+		.build();
 
         OtlpGrpcMetricExporter metricExporter = OtlpGrpcMetricExporter.builder()
                 .setEndpoint("http://elastic-apm-server.elastic-system.svc.cluster.local:8200")
-                .build();
+                .addHeader("Authorization", "Bearer Wl9sQ0xKZ0JWNlJDY3RrRTlvY0U6cWZ4X0lxX0dwQXE2TGptdkFNWEpnQQ==")
+		.build();
 
         // Tracer setup
         SdkTracerProvider tracerProvider = SdkTracerProvider.builder()
