@@ -1,5 +1,8 @@
 
 package com.example.telemetry;
+import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.common.AttributeKey;
 
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
@@ -28,6 +31,12 @@ public class TelemetryApp {
 
     public static void main(String[] args) {
         // Set up OTLP exporters
+	Resource resource = Resource.getDefault()
+            .merge(Resource.create(Attributes.of(
+                AttributeKey.stringKey("service.name"), "javaapp",
+                AttributeKey.stringKey("deployment.environment"), "dev",
+                AttributeKey.stringKey("service.version"), "1.0.0"
+            )));
         OtlpGrpcSpanExporter spanExporter = OtlpGrpcSpanExporter.builder()
                 .setEndpoint("http://elastic-apm-server.elastic-system.svc.cluster.local:8200")
                 .addHeader("Authorization", "Bearer Wl9sQ0xKZ0JWNlJDY3RrRTlvY0U6cWZ4X0lxX0dwQXE2TGptdkFNWEpnQQ==")
@@ -40,7 +49,8 @@ public class TelemetryApp {
 
         // Tracer setup
         SdkTracerProvider tracerProvider = SdkTracerProvider.builder()
-                .addSpanProcessor(BatchSpanProcessor.builder(spanExporter).build())
+                .setResource(resource)
+		.addSpanProcessor(BatchSpanProcessor.builder(spanExporter).build())
                 .build();
 
         // Metrics setup
