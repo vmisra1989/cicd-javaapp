@@ -29,11 +29,11 @@ public class TelemetryApp {
     public static void main(String[] args) {
         // Set up OTLP exporters
         OtlpGrpcSpanExporter spanExporter = OtlpGrpcSpanExporter.builder()
-                .setEndpoint("elastic-apm-server.elastic-system.svc:8200")
+                .setEndpoint("http://elastic-apm-server.elastic-system.svc.cluster.local:8200")
                 .build();
 
         OtlpGrpcMetricExporter metricExporter = OtlpGrpcMetricExporter.builder()
-                .setEndpoint("elastic-apm-server.elastic-system.svc:8200")
+                .setEndpoint("http://elastic-apm-server.elastic-system.svc.cluster.local:8200")
                 .build();
 
         // Tracer setup

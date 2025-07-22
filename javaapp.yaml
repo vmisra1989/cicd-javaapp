@@ -4,7 +4,7 @@ metadata:
   name: otel-config
   namespace: otel
 data:
-  OTEL_EXPORTER_OTLP_ENDPOINT: "elastic-apm-server.elastic-system.svc:8200"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://elastic-apm-server.elastic-system.svc.cluster.local:8200"
   OTEL_SERVICE_NAME: "javaapp"
 
 ---
